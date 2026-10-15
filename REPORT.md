@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Họ và tên | Đỗ Mạnh Đoàn |
+| Họ và tên | Đỗ Mạnh Đoan |
 | MSSV | 202602839 |
 | GitHub | mDoanzz43 |
 | Seed chia du lieu / seed mo hinh | 6347 / 661 |
