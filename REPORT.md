@@ -1,63 +1,51 @@
-# REPORT — Lab Day 12
-
-> Điền **bằng lời và số liệu của chính bạn** (lấy từ màn hình và từ `evidence/*.json`). Mỗi câu 4–8 dòng là đủ. Số không có trong bằng chứng của bạn sẽ bị trừ điểm. Báo cáo công khai trên GitHub; giảng viên đối chiếu với `evidence/` và với bài của các bạn khác.
+# REPORT - Lab Day 12
 
 | | |
 |---|---|
-| Họ và tên | `<điền>` |
-| MSSV (đúng bằng `--student-id` bạn đã chạy) | `<điền>` |
-| GitHub | `<điền: tên tài khoản>` |
-| Seed chia dữ liệu / seed mô hình (xem `evidence/closedloop.json`, mục `student`) | `<điền>` |
-| Số seed huấn luyện bạn dùng (`--seeds`) | `<điền>` |
+| Họ và tên | Đỗ Mạnh Đoàn |
+| MSSV | 202602839 |
+| GitHub | mDoanzz43 |
+| Seed chia du lieu / seed mo hinh | 6347 / 661 |
+| Số seed huấn luyện | 5 seed cho mô hình gốc; 3 seed cho mô hình sau sửa |
 
-## Kết quả cuối
+## Ket qua cuoi
 
-Điền từ `evidence/closedloop.json`, `openloop.json`, `gate.json` (cho mỗi mô hình học, lấy **dải qua các seed**).
+| Bo dieu khien | L2 vong ho (m) | Va cham vong kin tren log (%) | Quyet dinh cong |
+|---|---:|---:|---|
+| constant-velocity | 1.252 | 19.60 | BLOCK |
+| IDM | 1.533 | 0.07 | baseline |
+| EgoMLP | 0.762 +/- 0.002 | 13.84-30.94 | BLOCK |
+| PercMLP | 0.622 +/- 0.001 | 0.59-1.21 | BLOCK |
+| PercMLP+ | 0.814 +/- 0.019 | 0.28-0.31 | RELEASE |
 
-| Bộ điều khiển | L2 vòng hở (m) | Va chạm vòng kín trên log (%) | Quyết định cổng |
-|---|---|---|---|
-| constant-velocity | | | |
-| IDM | | | (baseline) |
-| EgoMLP | | | |
-| PercMLP | | | |
-| PercMLP+ (sau khi sửa) | | | |
+## Câu 1 - Dữ liệu
 
-## Câu 1 · Dữ liệu
-Bước 0 bạn phát hiện những vấn đề gì ở dữ liệu? Vì sao không dùng cột `Acc_LV`, và bạn thay bằng gì? Bao nhiêu quỹ đạo bị loại vì trùng, và vì sao chia theo quỹ đạo?
+`data_audit.json` co 992,679 dong, 9,993 quy dao tho; 383 ban trung hoan toan bi loai, con 9,610 quy dao. Cot `Acc_LV` gan nhu khong tuong quan voi dao ham toc do (`r=0.045`), trong khi `Acc_FAV` co `r=0.929`, nen toi suy gia toc xe dan tu `Speed_LV` da lam muot. Neu chia theo frame, cac frame ke nhau cua cung mot quy dao, hoac hai quy dao trung, co the nam o ca train va test va gay ro ri. Vi vay du lieu duoc khu trung truoc va chia theo toan bo quy dao.
 
-(trả lời ở đây)
+## Câu 2 - Phát lại
 
-## Câu 2 · Phát lại
-Bản refactor float32 khác bit ở bao nhiêu đoạn, vượt dung sai ở bao nhiêu? Thay đổi AEB làm lệch bao nhiêu đoạn, và vì sao lệch ở đúng những khung đó (mở một đoạn ra xem)? Phát theo thời gian thật làm lộ ra điều gì mà phát nhanh nhất che đi?
+Hai lan chay cung code khop tung bit tren 600/600 doan. Refactor float32 khac bit o 600 doan, nhung 0 doan vuot `atol=rtol=1e-3`; sai khac lon nhat chi `1.22e-4`, nen so sanh dung sai moi phan biet nhieu so voi doi hanh vi. AEB lam lech 7 doan. O doan 55, chi frame 98-101 lech: TTC `1.431-1.490 s` nho hon nguong 1.5 s, nen lenh IDM khoang `-5.44..-5.91` doi thanh `-6.0 m/s^2`. Fastest replay bao 0 tre/rot, con realtime co 586 frame tre, 581 frame rot va 381/600 doan thay doi, vi fastest khong mo phong deadline va viec giu lenh cu.
 
-(trả lời ở đây)
+## Câu 3 - Kịch bản
 
-## Câu 3 · Kịch bản
-Lưới của bạn (tốc độ cruise, giới hạn khoảng cách, số ô): bao nhiêu % ô **không ai tránh được**? Độ trễ phản ứng 0 → 0,6 s làm vùng đâm của IDM tăng bao nhiêu? Log có phủ vùng khó không? (dẫn giới hạn phanh mạnh nhất của người lái trong log, và phần lưới đòi hỏi hơn thế)
+Luoi dung van toc ego `12 m/s`, gap `2.76-59.31 m`, closing speed `0-12 m/s`, tong 2,700 o. Vung bat kha thi tang tu `2.22%` khi tre 0 s len `7.44%` khi tre 0.6 s; full-brake khop bien vat ly voi 0 o lech xa frontier. IDM va cham dung cac vung nay, nen attributable area la 0% o ca hai muc tre. Log co 614 ca xe dan phanh; gioi han phanh nguoi lai p99.9 chi `3.625 m/s^2`, trong khi `8.56%` luoi can phanh manh hon, cho thay log khong phu day du vung kho.
 
-(trả lời ở đây)
+## Câu 4 - Vòng hở và vòng kín
 
-## Câu 4 · Vòng hở và vòng kín
-Dán bảng L2 và tỷ lệ va chạm của bốn bộ điều khiển (kèm hạng ở mỗi cách chấm). Cặp nào đổi thứ tự? Vì sao IDM có L2 như vậy mà vẫn lái tốt? Vì sao EgoMLP có L2 tốt hơn constant-velocity mà vẫn đâm?
+Thu hang L2 la PercMLP (0.622), EgoMLP (0.762), constant-velocity (1.252), IDM (1.533); thu hang va cham vong kin lai la IDM (0.07%), PercMLP (trung binh 1.00%), constant-velocity (19.60%), EgoMLP (23.45%). Bon cap dao thu hang la const-vel/IDM, const-vel/EgoMLP, IDM/EgoMLP va IDM/PercMLP. IDM khong bat chuoc chinh xac quy dao nguoi lai nen L2 cao, nhung dung gap va relative speed de phan hoi on dinh. EgoMLP chi thay lich su toc do ego: no du doan trung binh kha tot nhung khong thay xe dan phanh/cut-in, nen sai so nho tich luy trong vong kin va gay va cham.
 
-(trả lời ở đây)
+## Câu 5 - Một lần chạy chưa đủ
 
-## Câu 5 · Một lần chạy chưa đủ
-EgoMLP dao động bao nhiêu giữa các seed? Khoảng tin cậy Wilson nói gì? Nếu bạn chỉ chạy đúng một seed thì có thể báo kết quả nào, và vì sao điều đó nguy hiểm?
+EgoMLP dao dong rat lon qua 5 seed: ty le va cham `13.84-30.94%`, chenh `17.10` diem phan tram. O worst seed, 892/2,883 quy dao va cham (`30.94%`) va Wilson 95% la `[29.28%, 32.65%]`; day la bat dinh huan luyen, khong phai chi nhieu lay mau. Neu chi chay seed tot nhat, co the bao nham 13.84% va che hon mot nua rui ro thay o seed xau. PercMLP on dinh hon (`0.59-1.21%`) nhung worst-seed CI van `[0.87%, 1.68%]`, du de rot R2 so voi IDM 0.07% + 1 diem.
 
-(trả lời ở đây)
+## Câu 6 - Tác nhân phản ứng
 
-## Câu 6 · Tác nhân phản ứng
-Dán bảng "xe sau phát lại" và "xe sau phản ứng". `T` bạn hiệu chỉnh là bao nhiêu, xe sau chân thực đến mức nào so với xe không phản ứng? Vì sao IDM bị tính "va chạm giả" khi xe sau chỉ phát lại, và điều này làm đổi kết luận về bộ điều khiển ra sao?
+Nguoi lai co headway trung vi `1.856 s`; IDM rear agent duoc hieu chinh tai `T=1.4 s` voi W1=0.351, tot hon tac nhan khong phan ung W1=0.890. Tai ego delay 0.6 s, rear replay/reactive cho IDM la `75.74%/7.44%`, PercMLP `77.81%/24.96%`, va PercMLP+ `75.30%/7.81%`. Rear replay tao `68.30%` rear collision cho IDM vi xe sau giu quy dao cu va khong biet ego da phanh; rear reactive dua rear collision ve 0%. Tuy vay PercMLP van cao hon IDM khi the gioi phan ung, nen viec sua tac nhan loai duoc va cham gia nhung khong xoa loi controller.
 
-(trả lời ở đây)
+## Câu 7 - Cổng phát hành và sửa
 
-## Câu 7 · Cổng phát hành và sửa
-Quy tắc nào chặn PercMLP và nguyên nhân gốc là gì (dẫn số)? Bạn sửa bằng gì và vì sao nó chữa đúng nguyên nhân? Sau khi qua cổng, PercMLP+ có **tốt hơn** IDM không? Nó có nên được phát hành không, và bạn đề xuất làm gì trước khi quyết định?
+PercMLP bi chan boi R2 (worst `1.21%`, upper 95% `1.68%`), R3 (braking slice `4.88%`, upper `9.33%`), R4 (avoidable cut-in `17.52%`) va R6 (reactive-world `24.96%`). Nguyen nhan la log thieu cut-in kho va imitation error dua model den trang thai chua thay. Toi them 196,870 window tu 20,000 cut-in va hai vong DAgger gan nhan IDM tai trang thai model tu ghe tham. PercMLP+ con `0.28-0.31%` va cham, `0.37%` attributable grid, qua ca 7 rule; o 20 m/s ngoai mien train no con `0.67-0.89%`, so voi PercMLP `21.44-30.30%`. Tuy nhien L2 tang `0.622 -> 0.814 m` va bang chung chi cho thay khong kem IDM theo margin cua gate, khong chung minh tot hon IDM; nen chi phat hanh gioi han sau them test thuc dia, ODD va shadow mode.
 
-(trả lời ở đây)
+## Câu 8 - Bài lab này không chứng minh được gì
 
-## Câu 8 · Bài lab này không chứng minh được gì
-Chọn **ít nhất ba** giới hạn quan trọng nhất đối với việc quyết định phát hành và giải thích vì sao mỗi cái làm kết luận của bạn kém chắc chắn. Điều gì cần làm tiếp để thu hẹp khoảng cách đến thế giới thật?
-
-(trả lời ở đây)
+Thu nhat, mo phong chi co chuyen dong doc 1-D, khong co lane, cua xe, nguoi di bo hay dong luc hoc day du, nen khong dai dien cho giao thong that. Thu hai, lead trong log bi replay va cam bien duoc mo phong don gian; ket qua khong bao phu latency, occlusion, packet loss va loi nhan thuc thuc. Thu ba, 9,610 quy dao Argoverse la mot phan bo han che va con thieu vung phanh/cut-in manh, nen khong chung minh duoc safety ngoai ODD. Cuoi cung, gate dung cac margin quy uoc va so lan thu huu han, nen RELEASE khong phai chung nhan an toan. Buoc tiep theo la scenario coverage co he thong, sensor/HIL, nhieu tac nhan 2-D, du lieu fleet doc lap, shadow deployment va giam sat failure rate voi khoang tin cay.
